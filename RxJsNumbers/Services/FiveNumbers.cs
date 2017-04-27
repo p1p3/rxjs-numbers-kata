@@ -37,10 +37,9 @@ namespace RxJsNumbers.Services
             this._lastFiveNumbersPlusOne.Subscribe(result => _lastFiveNumberSumPlusOne = result);
         }
 
-        public bool ValidateLastFiveNumbersPlusOne(int[] numbers)
+        public bool ValidateLastFiveNumbersPlusOne(int expected)
         {
-            var result = numbers.Select(number => number += 1).Sum();
-            return this._lastFiveNumberSumPlusOne == result;
+            return this._lastFiveNumberSumPlusOne == expected;
         }
     }
 }

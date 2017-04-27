@@ -10,7 +10,7 @@ namespace RxJsNumbers.Services
     {
         int LastNumber { get; }
         IObservable<int> Numbers { get; }
-        bool ValidateLastFiveNumbersPlusOne(int[] numbers);
+        bool ValidateLastFiveNumbersPlusOne(int expected);
 
 
     }
