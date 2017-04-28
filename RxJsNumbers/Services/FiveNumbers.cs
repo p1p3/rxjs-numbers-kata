@@ -11,35 +11,52 @@ namespace RxJsNumbers.Services
 {
     public class FiveNumbers : IFiveNumbers
     {
-        private IObservable<int> _numbers;
-        private IObservable<int> _lastFiveNumbersPlusOne;
 
-        private int _lastNumber;
         private int _lastFiveNumberSumPlusOne;
 
-        public int LastNumber => this._lastNumber;
-        public IObservable<int> Numbers => this._numbers;
+        public int LastNumber { get; private set; }
 
+        public IObservable<int> Numbers { get; }
 
-        public FiveNumbers()
+        private readonly Random _random;
+
+        public FiveNumbers(TimeSpan frecuency)
         {
-            var random = new Random();
+            this._random = new Random();
 
-            this._numbers = Observable.
-                            Interval(TimeSpan.FromSeconds(3),new NewThreadScheduler())
-                            .Map(time => random.Next(0, 10000));
+            var observable = Observable
+                .Interval(frecuency, new NewThreadScheduler())
+                .StartWith(0)
+                .Map(time => GetNextValue())
+                .Publish();
 
-            this._lastFiveNumbersPlusOne = this._numbers
-                                           .Map(number => number += 1)
-                                           .Buffer(5).Map(numbers => numbers.Sum());
+            this.Numbers = observable;
 
-            this._numbers.Subscribe(number => this._lastNumber = number);
-            this._lastFiveNumbersPlusOne.Subscribe(result => _lastFiveNumberSumPlusOne = result);
+            this.Numbers
+               .Map(number => number + 1)
+               .Buffer(5)
+               .Map(numbers => numbers.Sum())
+               .Subscribe(result => _lastFiveNumberSumPlusOne = result);
+
+            this.Numbers.Subscribe(number => this.LastNumber = number);
+
+            observable.Connect();
         }
 
         public bool ValidateLastFiveNumbersPlusOne(int expected)
         {
             return this._lastFiveNumberSumPlusOne == expected;
+        }
+
+        private int GetNextValue()
+        {
+            Func<int> randomNumber = () => _random.Next(0, 10000);
+            var nextNumber = randomNumber();
+            while (nextNumber == LastNumber)
+            {
+                nextNumber = randomNumber();
+            }
+            return nextNumber;
         }
     }
 }

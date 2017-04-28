@@ -38,7 +38,8 @@ namespace RxJsNumbers.App_Start
 
             // TODO: Register your types here
             // container.RegisterType<IProductRepository, ProductRepository>();
-            container.RegisterType<IFiveNumbers, FiveNumbers > (new ContainerControlledLifetimeManager());
+            var injector = new InjectionConstructor(TimeSpan.FromSeconds(3));
+            container.RegisterType<IFiveNumbers, FiveNumbers>(new ContainerControlledLifetimeManager(), injector);
         }
     }
 }
